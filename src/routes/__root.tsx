@@ -11,6 +11,8 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { AuthProvider } from "../contexts/AuthContext";
+import { Navbar } from "../components/Navbar";
 
 function NotFoundComponent() {
   return (
@@ -123,8 +125,14 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <AuthProvider>
+        <div className="min-h-screen bg-zinc-950 text-zinc-50 selection:bg-emerald-500/30 font-sans">
+          <Navbar />
+          <main className="container mx-auto px-4 pt-24 pb-12">
+            <Outlet />
+          </main>
+        </div>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

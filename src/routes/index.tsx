@@ -1,120 +1,104 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { PRESET_QUIZZES } from "@/lib/quizzes";
-import { Button } from "@/components/ui/button";
-import { Plus, Share2, Trophy } from "lucide-react";
+import { createFileRoute, useNavigate, Link } from '@tanstack/react-router';
+import { useAuth } from '@/contexts/AuthContext';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
+import { Trophy, Activity, Users, Star, ArrowRight } from 'lucide-react';
 
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Escalação — adivinhe o time" },
-      { name: "description", content: "Acerte os 11 titulares das partidas mais marcantes do futebol. Crie seus próprios desafios e jogue com amigos." },
-      { property: "og:title", content: "Escalação — adivinhe o time" },
-      { property: "og:description", content: "Acerte os 11 titulares das partidas mais marcantes do futebol." },
-    ],
-  }),
-  component: Home,
+export const Route = createFileRoute('/')({
+  component: Dashboard,
 });
 
-function Home() {
+function Dashboard() {
+  const { session, loading } = useAuth();
+  const navigate = useNavigate();
+  const [elo, setElo] = useState<number>(1000);
+
+  useEffect(() => {
+    if (!loading && !session) {
+      navigate({ to: '/login' });
+    }
+  }, [session, loading, navigate]);
+
+  if (loading || !session) return null;
+
   return (
-    <div className="min-h-screen">
-      {/* Hero */}
-      <header className="border-b">
-        <div className="mx-auto max-w-5xl px-4 pt-14 pb-12">
-          <div className="flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-muted-foreground">
-            <span className="inline-block size-2 rounded-full bg-accent" />
-            o jogo da escalação
-          </div>
-          <h1 className="display text-5xl md:text-7xl mt-3 leading-[0.95]">
-            38&nbsp;×&nbsp;0. 7&nbsp;×&nbsp;1.
-            <br />
-            <span className="text-muted-foreground">qual é o XI?</span>
-          </h1>
-          <p className="mt-5 max-w-xl text-base text-muted-foreground">
-            Acerte os onze titulares das partidas que entraram pra história. Crie sua própria
-            escalação e desafie a galera por link.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-2">
-            <Button asChild size="lg">
-              <Link to="/play/$id" params={{ id: PRESET_QUIZZES[0].id }}>
-                <Trophy className="size-4" /> Começar a jogar
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link to="/create">
-                <Plus className="size-4" /> Criar desafio
-              </Link>
-            </Button>
-          </div>
-        </div>
+    <div className="mx-auto max-w-5xl space-y-8 animate-in fade-in duration-500">
+      <header className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight text-white">Bem-vindo, Manager!</h1>
+        <p className="text-zinc-400 mt-1">Aqui está o seu resumo da temporada.</p>
       </header>
 
-      {/* Featured */}
-      <section className="mx-auto max-w-5xl px-4 py-12">
-        <div className="mb-5 flex items-end justify-between">
-          <h2 className="display text-2xl">Partidas em destaque</h2>
-          <span className="text-xs uppercase tracking-widest text-muted-foreground">
-            {PRESET_QUIZZES.length} jogos
-          </span>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          {PRESET_QUIZZES.map((q) => (
-            <Link
-              key={q.id}
-              to="/play/$id"
-              params={{ id: q.id }}
-              className="group relative overflow-hidden rounded-2xl border bg-card shadow-card transition hover:-translate-y-0.5 hover:shadow-glow"
-            >
-              <div className="flex items-stretch">
-                <div className="flex w-24 flex-col items-center justify-center bg-primary text-primary-foreground">
-                  <span className="display text-2xl leading-none">{q.badge}</span>
-                </div>
-                <div className="flex-1 p-4">
-                  <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                    {q.competition}
-                  </div>
-                  <div className="display text-xl mt-1 leading-tight">{q.title}</div>
-                  <div className="mt-1 text-sm text-muted-foreground">{q.subtitle}</div>
-                  <div className="mt-3 flex items-center gap-3 text-xs">
-                    <span className="scoreboard rounded-md bg-secondary px-2 py-1">
-                      {q.score ?? "—"}
-                    </span>
-                    <span className="text-muted-foreground">{q.players.length} jogadores</span>
-                  </div>
-                </div>
-              </div>
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 bg-accent scale-x-0 origin-left transition-transform group-hover:scale-x-100" />
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section className="border-t bg-secondary/40">
-        <div className="mx-auto max-w-5xl px-4 py-12 grid gap-6 sm:grid-cols-3">
-          {[
-            { n: "01", t: "Escolha a partida", d: "Finais, viradas, vexames — tudo o que ficou na memória." },
-            { n: "02", t: "Digite os nomes", d: "Aceita sobrenome. Sem dica, sem letra revelada. É memória pura." },
-            { n: "03", t: "Compartilhe o link", d: "Crie sua própria escalação e mande pros amigos no grupo." },
-          ].map((s) => (
-            <div key={s.n}>
-              <div className="scoreboard text-xs text-accent-foreground/60">{s.n}</div>
-              <h3 className="display text-xl mt-1">{s.t}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{s.d}</p>
+      <div className="grid gap-4 md:grid-cols-3">
+        {/* Card: Elo Rating */}
+        <div className="rounded-xl border border-white/10 bg-zinc-900/40 p-6 shadow-lg backdrop-blur-sm">
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400">
+              <Star className="h-6 w-6" />
             </div>
-          ))}
+            <div>
+              <p className="text-sm font-medium text-zinc-400">Rating (Elo)</p>
+              <h2 className="text-2xl font-bold text-white">{elo}</h2>
+            </div>
+          </div>
         </div>
-      </section>
 
-      <footer className="border-t">
-        <div className="mx-auto max-w-5xl px-4 py-6 flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
-          <span>Escalação · feito pra resenha de bar</span>
-          <Link to="/create" className="inline-flex items-center gap-1 hover:text-foreground">
-            <Share2 className="size-3" /> criar um desafio
+        {/* Card: Partidas Jogadas */}
+        <div className="rounded-xl border border-white/10 bg-zinc-900/40 p-6 shadow-lg backdrop-blur-sm">
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-500/20 text-blue-400">
+              <Activity className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-zinc-400">Partidas Solo</p>
+              <h2 className="text-2xl font-bold text-white">0</h2>
+            </div>
+          </div>
+        </div>
+
+        {/* Card: Ligas Privadas */}
+        <div className="rounded-xl border border-white/10 bg-zinc-900/40 p-6 shadow-lg backdrop-blur-sm">
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-500/20 text-purple-400">
+              <Users className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-zinc-400">Ligas Privadas</p>
+              <h2 className="text-2xl font-bold text-white">0</h2>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-8 md:grid-cols-2 mt-8">
+        <div className="rounded-xl border border-white/10 bg-zinc-900/40 p-8 shadow-lg backdrop-blur-sm relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent transition-opacity group-hover:opacity-100 opacity-50" />
+          <h3 className="text-xl font-bold text-white mb-2 relative z-10">Temporada Perfeita</h3>
+          <p className="text-zinc-400 mb-6 relative z-10 text-sm">
+            Selecione uma liga, monte seu *Dream Team* do Draft e tente vencer todos os jogos sem perder. O desafio supremo do Modo Solo.
+          </p>
+          <Link
+            to="/solo-mode"
+            className="inline-flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/20 relative z-10 border border-white/10"
+          >
+            <Trophy className="h-4 w-4" />
+            Jogar Modo Solo
+            <ArrowRight className="h-4 w-4 ml-1" />
           </Link>
         </div>
-      </footer>
+
+        <div className="rounded-xl border border-white/5 bg-zinc-900/20 p-8 shadow-lg backdrop-blur-sm relative overflow-hidden">
+          <h3 className="text-xl font-bold text-white mb-2 opacity-50">PvP Ranqueado</h3>
+          <p className="text-zinc-500 mb-6 text-sm">
+            Enfrente outros managers em tempo real. Ajuste táticas no intervalo e suba no ranking global.
+          </p>
+          <button
+            disabled
+            className="inline-flex items-center gap-2 rounded-lg bg-white/5 px-4 py-2 text-sm font-medium text-zinc-500 cursor-not-allowed"
+          >
+            Em breve
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
