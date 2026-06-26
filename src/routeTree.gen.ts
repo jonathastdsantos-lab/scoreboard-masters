@@ -9,11 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as CreateRouteImport } from './routes/create'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PlayCustomRouteImport } from './routes/play.custom'
 import { Route as PlayIdRouteImport } from './routes/play.$id'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CreateRoute = CreateRouteImport.update({
   id: '/create',
   path: '/create',
@@ -38,12 +44,14 @@ const PlayIdRoute = PlayIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/create': typeof CreateRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/play/$id': typeof PlayIdRoute
   '/play/custom': typeof PlayCustomRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/create': typeof CreateRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/play/$id': typeof PlayIdRoute
   '/play/custom': typeof PlayCustomRoute
 }
@@ -51,26 +59,41 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/create': typeof CreateRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/play/$id': typeof PlayIdRoute
   '/play/custom': typeof PlayCustomRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/create' | '/play/$id' | '/play/custom'
+  fullPaths: '/' | '/create' | '/sitemap.xml' | '/play/$id' | '/play/custom'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/create' | '/play/$id' | '/play/custom'
-  id: '__root__' | '/' | '/create' | '/play/$id' | '/play/custom'
+  to: '/' | '/create' | '/sitemap.xml' | '/play/$id' | '/play/custom'
+  id:
+    | '__root__'
+    | '/'
+    | '/create'
+    | '/sitemap.xml'
+    | '/play/$id'
+    | '/play/custom'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CreateRoute: typeof CreateRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   PlayIdRoute: typeof PlayIdRoute
   PlayCustomRoute: typeof PlayCustomRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/create': {
       id: '/create'
       path: '/create'
@@ -105,6 +128,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CreateRoute: CreateRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   PlayIdRoute: PlayIdRoute,
   PlayCustomRoute: PlayCustomRoute,
 }
