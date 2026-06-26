@@ -12,6 +12,23 @@ function Dashboard() {
   const { session, loading } = useAuth();
   const navigate = useNavigate();
   const [elo, setElo] = useState<number>(1000);
+  const [findingMatch, setFindingMatch] = useState(false);
+
+  const handleFindMatch = async () => {
+    setFindingMatch(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('matchmaking', {
+        body: { action: 'find_match', pvp_squad_id: null } // using null for now since squad drafting isn't built
+      });
+      if (error) throw error;
+      
+      alert(`Matchmaking acionado! Status/Match ID: ${JSON.stringify(data)}`);
+    } catch (err: any) {
+      alert('Erro no matchmaking: ' + err.message);
+    } finally {
+      setFindingMatch(false);
+    }
+  };
 
   useEffect(() => {
     if (!loading && !session) {
@@ -87,15 +104,16 @@ function Dashboard() {
         </div>
 
         <div className="rounded-xl border border-white/5 bg-zinc-900/20 p-8 shadow-lg backdrop-blur-sm relative overflow-hidden">
-          <h3 className="text-xl font-bold text-white mb-2 opacity-50">PvP Ranqueado</h3>
-          <p className="text-zinc-500 mb-6 text-sm">
+          <h3 className="text-xl font-bold text-white mb-2">PvP Ranqueado</h3>
+          <p className="text-zinc-400 mb-6 text-sm">
             Enfrente outros managers em tempo real. Ajuste táticas no intervalo e suba no ranking global.
           </p>
           <button
-            disabled
-            className="inline-flex items-center gap-2 rounded-lg bg-white/5 px-4 py-2 text-sm font-medium text-zinc-500 cursor-not-allowed"
+            onClick={handleFindMatch}
+            disabled={findingMatch}
+            className="inline-flex items-center gap-2 rounded-lg bg-emerald-500/20 border border-emerald-500/50 px-4 py-2 text-sm font-bold text-emerald-400 transition-colors hover:bg-emerald-500 hover:text-black disabled:opacity-50 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
           >
-            Em breve
+            {findingMatch ? 'Buscando adversário...' : 'Buscar Partida'}
           </button>
         </div>
       </div>
