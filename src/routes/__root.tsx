@@ -81,6 +81,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Adivinhe os 11 titulares das partidas mais marcantes do futebol. Crie desafios e jogue com os amigos." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:title", content: "Escalação — adivinhe o XI" },
+      { name: "twitter:title", content: "Escalação — adivinhe o XI" },
+      { property: "og:description", content: "Adivinhe os 11 titulares das partidas mais marcantes do futebol. Crie desafios e jogue com os amigos." },
+      { name: "twitter:description", content: "Adivinhe os 11 titulares das partidas mais marcantes do futebol. Crie desafios e jogue com os amigos." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7a6fd25b-6e93-43ff-9e7b-d3c87bed3294/id-preview-5861adbe--1bca3ee8-a7f6-4067-8c3e-08a5fed62a29.lovable.app-1782459894396.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7a6fd25b-6e93-43ff-9e7b-d3c87bed3294/id-preview-5861adbe--1bca3ee8-a7f6-4067-8c3e-08a5fed62a29.lovable.app-1782459894396.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
