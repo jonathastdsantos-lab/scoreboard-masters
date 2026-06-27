@@ -70,13 +70,14 @@ async function fetchPlayersByLeagueSeason(leagueId: number, season: number) {
   return allPlayers;
 }
 
-async function upsertPlayer(p: ApiFootballPlayerResponse['player']) {
+async function upsertPlayer(p: ApiFootballPlayerResponse['player'], position: 'GK' | 'DF' | 'MF' | 'FW') {
   const { data, error } = await supabase
     .from('players')
     .upsert(
       {
         external_id: p.id, // guardar o ID original da API para evitar duplicados em re-importações
         full_name: p.name,
+        position: position,
         nationality: p.nationality,
         birth_date: p.birth.date,
       },
@@ -161,7 +162,7 @@ export async function importLeagueSeason(
     const position = POSITION_MAP[entry.statistics[0]?.games.position ?? ''];
     if (!position) continue;
 
-    const playerDbId = await upsertPlayer(entry.player);
+    const playerDbId = await upsertPlayer(entry.player, position);
 
     for (const stat of entry.statistics) {
       // Pular estatísticas de ligas diferentes da que estamos importando agora

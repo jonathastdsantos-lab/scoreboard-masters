@@ -22,7 +22,9 @@ function Dashboard() {
       });
       if (error) throw error;
       
-      alert(`Matchmaking acionado! Status/Match ID: ${JSON.stringify(data)}`);
+      if (data?.match_id) {
+        navigate({ to: '/match/$matchId', params: { matchId: data.match_id } });
+      }
     } catch (err: any) {
       alert('Erro no matchmaking: ' + err.message);
     } finally {
